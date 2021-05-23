@@ -92,10 +92,10 @@ def loss_fn(preds, r):
     return -1 * torch.sum(r * torch.log(preds))
 
 
-MAX_DUR = 800
+MAX_DUR = 20
 #MAX_EPISODES = 10
-MAX_EPISODES = 200
-gamma = 0.99
+MAX_EPISODES = 4000
+gamma = 0.3
 score = []
 expectation = 0.0
 
