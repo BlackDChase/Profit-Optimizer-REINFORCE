@@ -128,7 +128,7 @@ class LSTMEnv(gym.Env):
 
         return states
 
-    def step(self, action, train=False):
+    def step(self, action, LOG=False):
         """
         Calculate new current observation
         Calculate reward
@@ -156,7 +156,7 @@ class LSTMEnv(gym.Env):
         # get reward
         # Ensure that numpy array shape is (1,), not () otherwise conversion to torch.Tensor will get messed up
         # Use denormalized new price to get denormalized reward
-        denormalized_reward = np.array([self.get_reward(denormalize=True,train=train)])
+        denormalized_reward = np.array([self.get_reward(denormalize=True,LOG=LOG)])
 
         # We update the price in the current observation
         # This ensures that the model takes into account the action we just
@@ -177,7 +177,7 @@ class LSTMEnv(gym.Env):
         new_price = old_price * (1 + (self.actionSpace[action])/ 100)
         return new_price
 
-    def get_reward(self, denormalize=False,train=False):
+    def get_reward(self, denormalize=False,LOG=False):
 
         """
         Calculate reward based on the new_price
@@ -246,7 +246,7 @@ class LSTMEnv(gym.Env):
         
         # Included profits generated in state set (for plotting graph)
         profit = (demand - supply)*new_price
-        if not train:
+        if LOG:
             log.info(f"State set = {new_price}, {correction}, {demand}, {supply}, {profit}")
         return reward
 
@@ -260,7 +260,7 @@ class LSTMEnv(gym.Env):
             minv = self.min_max_values["min"][feature]
             maxv = self.min_max_values["max"][feature]
             value = arr[feature]
-            array[feature] = (value * (maxv - minv)) + minv 
+            array[feature] = (value * (maxv - minv)) + minv
         return array
 
     def normalize(self, arr):
