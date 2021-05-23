@@ -1,3 +1,22 @@
+# Additonals
+*.ipynb_checkpoints
+share/
+*__pycache__
+datasets/
+pyvenv.cfg
+lib/*
+bin/*
+lib64/*
+logs/*
+*.tsv
+Saved_model/*
+Saved_test/*
+todo
+*.vscode
+updateVersion.sh
+.fuse_h*
+OUT*.log
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
