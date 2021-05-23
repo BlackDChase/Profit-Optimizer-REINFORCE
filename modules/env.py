@@ -260,7 +260,7 @@ class LSTMEnv(gym.Env):
             minv = self.min_max_values["min"][feature]
             maxv = self.min_max_values["max"][feature]
             value = arr[feature]
-            array[feature] = (value * (maxv - minv)) + minv - 1
+            array[feature] = (value * (maxv - minv)) + minv
         return array
 
     def normalize(self, arr):
@@ -273,5 +273,5 @@ class LSTMEnv(gym.Env):
             minv = self.min_max_values["min"][feature]
             maxv = self.min_max_values["max"][feature]
             value = arr[feature]
-            array[feature] = (value - minv + 1)/(maxv - minv)
+            array[feature] = (value - minv)/(maxv - minv)
         return array
