@@ -80,7 +80,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 state1 = env.reset()
 pred = model(torch.from_numpy(state1).float())
 action = np.random.choice(np.array(actionSpaceIndices), p=pred.data.numpy().flatten())
-state2, reward, done, info = env.step(action,train=True)
+state2, reward, done, info = env.step(action,LOG=True)
 
 def discount_rewards(rewards, gamma=0.99):
     lenr = len(rewards)
@@ -92,10 +92,10 @@ def loss_fn(preds, r):
     return -1 * torch.sum(r * torch.log(preds))
 
 
-MAX_DUR = 20
+MAX_DUR = 800
 #MAX_EPISODES = 10
-MAX_EPISODES = 4000
-gamma = 0.3
+MAX_EPISODES = 200
+gamma = 0.99
 score = []
 expectation = 0.0
 
@@ -114,10 +114,12 @@ for episode in tqdm(range(MAX_EPISODES)):
         # print(f"act_prob = {act_prob}")
         action = np.random.choice(np.array(actionSpaceIndices), p=act_prob.data.numpy().flatten())
         prev_state = curr_state
-        curr_state, reward, done, info = env.step(action,train=True)
+        curr_state, reward, done, info = env.step(action,LOG=True)
         transitions.append((prev_state, action, reward))
         reward_batch.append(reward)
 
+    # Logging rewards as reward batch from the previous episode
+    log.info(f"rewards = {Tensor(reward_batch)}")
 
     ep_len = len(transitions)
     score.append(sum(reward_batch))
@@ -129,6 +131,8 @@ for episode in tqdm(range(MAX_EPISODES)):
     pred_batch = model(state_batch)
     prob_batch = pred_batch.gather(dim=1,index=action_batch.long().view(-1,1)).squeeze()
     loss = loss_fn(prob_batch, disc_returns)
+    # Logging loss 
+    log.info(f"Policy loss = {loss}")
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
@@ -161,7 +165,7 @@ for i in tqdm(range(games)):
     while not done:
         pred = model(torch.from_numpy(state1).float())
         action = np.random.choice(np.array(actionSpaceIndices), p=pred.data.numpy())
-        state2, reward, done, info = env.step(action)
+        state2, reward, done, info = env.step(action,LOG=False)
         state1 = state2 
         t += 1
         reward_batch.append(reward)
@@ -170,7 +174,9 @@ for i in tqdm(range(games)):
     state1 = env.reset()
     done = False
     score.append(sum(reward_batch)/len(reward_batch))
-    log.info(f"rewards = {Tensor(reward_batch)}")
+
+    # Logging rewards as reward batch from the previous episode
+    # log.info(f"rewards = {Tensor(reward_batch)}")
 
 score = np.array(score)
 print('Testing ends')
